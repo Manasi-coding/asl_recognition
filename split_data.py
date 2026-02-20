@@ -4,7 +4,7 @@ import random
 
 random.seed(42)
 
-source_path = "raw_dataset/asl_alphabet_train"
+source_path = "raw_dataset/asl_alphabet_train/asl_alphabet_train"
 
 # to store lines like: raw_dataset/asl_alphabet_train/A/image1.jpg,A
 train_file = open("train.txt", "w")
@@ -47,3 +47,7 @@ val_file.close()
 test_file.close()
 
 print("Split complete")
+
+print(len(open("train.txt").readlines()))
+print(len(open("val.txt").readlines()))
+print(len(open("test.txt").readlines()))
