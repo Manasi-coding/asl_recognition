@@ -4,7 +4,7 @@ import random
 
 random.seed(42)
 
-source_path = "raw_data/asl_alphabet_train"
+source_path = "raw_dataset/asl_alphabet_train"
 
 # to store lines like: raw_dataset/asl_alphabet_train/A/image1.jpg,A
 train_file = open("train.txt", "w")

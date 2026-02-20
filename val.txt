@@ -1,0 +1,4 @@
+raw_dataset/asl_alphabet_train\asl_alphabet_train\Y,asl_alphabet_train
+raw_dataset/asl_alphabet_train\asl_alphabet_train\del,asl_alphabet_train
+raw_dataset/asl_alphabet_train\asl_alphabet_train\W,asl_alphabet_train
+raw_dataset/asl_alphabet_train\asl_alphabet_train\G,asl_alphabet_train
