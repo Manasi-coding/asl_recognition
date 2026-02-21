@@ -43,8 +43,33 @@ log_preds = log_model.predict(X_val_scaled)
 print("Logistic Regression Accuracy:", accuracy_score(y_val_encoded, log_preds))
 
 # Random Forest (no scaling needed)
-rf_model = RandomForestClassifier(n_estimators=100)
+rf_model = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=42)
 rf_model.fit(X_train, y_train_encoded)
 
 rf_preds = rf_model.predict(X_val)
 print("Random Forest Accuracy:", accuracy_score(y_val_encoded, rf_preds))
+
+
+# SVM Accuracy: 0.9114459137220897
+# Logistic Regression Accuracy: 0.8795794493821808
+# Random Forest Accuracy: 0.9514415781487102
+
+# choosing rf 
+best_model = rf_model
+
+print("---- TEST EVALUATION ----")
+
+X_test = np.load("X_test.npy")
+y_test = np.load("y_test.npy")
+
+y_test_encoded = le.transform(y_test)
+
+test_predictions = best_model.predict(X_test)
+
+print("Test Accuracy:", accuracy_score(y_test_encoded, test_predictions))
+print(classification_report(y_test_encoded, test_predictions))
+
+import joblib
+
+joblib.dump(best_model, "best_model.pkl")
+joblib.dump(scaler, "scaler.pkl")  # needed if using SVM or Logistic

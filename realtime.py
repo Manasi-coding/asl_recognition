@@ -1,10 +1,21 @@
 import cv2 as cv
 import mediapipe as mp
-from features import extract_features
-from model import model
+import numpy as np
+import joblib
+from features import extract_features_from_landmarks
 
-mphands = mp.solutions.hands
-hands = mphands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.7, min_tracking_confidence=0.7) # take only one hand
+# load the trained model and classes
+model = joblib.load("best_model.pkl")
+classes = np.load("classes.npy")
+
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(
+    static_image_mode=False,
+    max_num_hands=1,
+    min_detection_confidence=0.7,
+    min_tracking_confidence=0.7
+)
+
 mpdraw = mp.solutions.drawing_utils
 
 cap = cv.VideoCapture(0)
@@ -13,30 +24,21 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-    
-    # mirror view
-    frame = cv.flip(frame, 1)
 
+    # flip the frame horizontally for a mirror effect
+    frame = cv.flip(frame, 1)
     rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
     results = hands.process(rgb_frame)
 
     if results.multi_hand_landmarks:
         hand = results.multi_hand_landmarks[0]
-        mpdraw.draw_landmarks(frame, hand, mphands.HAND_CONNECTIONS)
+        mpdraw.draw_landmarks(frame, hand, mp_hands.HAND_CONNECTIONS)
 
-        features = extract_features(hand.landmark)
+        features = extract_features_from_landmarks(hand.landmark)
         features = features.reshape(1, -1)
 
         pred = model.predict(features)[0]
-
-        if pred == 0:
-            letter = "A"
-        elif pred == 1:
-            letter = "B"
-        elif pred == 2:
-            letter = "C"
-        else:
-            letter = "?"
+        letter = classes[pred]
 
         cv.putText(
             frame,
@@ -48,10 +50,9 @@ while True:
             4
         )
 
-    cv.imshow("ASL Recognition", frame)
+    cv.imshow("ASL Alphabet Recognition", frame)
 
-    # exit on ESC (27)
-    if cv.waitKey(1) & 0xFF == 27:
+    if cv.waitKey(1) & 0xFF == ord("q"):
         break
 
 cap.release()
