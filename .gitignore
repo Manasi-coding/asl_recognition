@@ -1,6 +1,21 @@
+# Virtual environment
 .venv/
+
+# Python cache
 __pycache__/
-*.npy
-model.pkl
-dataset/
+*.pyc
+
+# Dataset folders
 raw_dataset/
+dataset/
+
+# Generated numpy feature files
+*.npy
+
+# Model artifacts
+*.pkl
+
+# Text split files (regenerable)
+train.txt
+val.txt
+test.txt
