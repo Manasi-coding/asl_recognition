@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   SIGNIFY — Sign Language Interpreter
+   Pure black · Glassmorphism · Neon pink + Violet
+   ============================================ */
+
+@layer base {
+  :root {
+    /* Pure black background */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 92%;             /* #eaeaea */
+
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 92%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 92%;
+
+    /* Neon pink primary */
+    --primary: 339 100% 65%;            /* #ff4d8d */
+    --primary-foreground: 0 0% 6%;
+    --primary-glow: 339 100% 72%;
+
+    /* Soft violet secondary */
+    --secondary: 252 100% 68%;          /* #7a5cff */
+    --secondary-foreground: 0 0% 92%;
+    --secondary-glow: 252 100% 76%;
+
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;       /* #9a9a9a */
+
+    --accent: 339 100% 65%;
+    --accent-foreground: 0 0% 6%;
+
+    --destructive: 0 84% 62%;
+    --destructive-foreground: 0 0% 96%;
+
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.06;
+    --ring: 339 100% 65%;
+
+    --radius: 1rem;
+
+    /* Glass tokens */
+    --glass-1: 0 0% 100% / 0.05;
+    --glass-2: 0 0% 100% / 0.08;
+    --glass-border: 0 0% 100% / 0.08;
+    --glass-highlight: 0 0% 100% / 0.06;
+
+    /* Gradients */
+    --gradient-pink-violet: linear-gradient(135deg, hsl(339 100% 65%), hsl(252 100% 68%));
+    --gradient-violet-pink: linear-gradient(135deg, hsl(252 100% 68%), hsl(339 100% 65%));
+
+    /* Glows (soft, restrained) */
+    --glow-pink: 0 0 24px -6px hsl(339 100% 65% / 0.55);
+    --glow-pink-soft: 0 0 18px -8px hsl(339 100% 65% / 0.4);
+    --glow-violet: 0 0 24px -6px hsl(252 100% 68% / 0.45);
+
+    /* Motion */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 65%;
+    --sidebar-primary: 339 100% 65%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 0 0% 6%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 100% / 0.06;
+    --sidebar-ring: 339 100% 65%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(0 0% 100% / 0.08);
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    @apply text-foreground antialiased;
+    background-color: #000;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "SF Pro Display", sans-serif;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(0 0% 100% / 0.06); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(0 0% 100% / 0.12); }
+}
+
+@layer components {
+  /* Glass surface — dark grey, subtle */
+  .glass {
+    background: hsl(var(--glass-1));
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .glass-strong {
+    background: hsl(var(--glass-2));
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  /* Inner highlight line at top — gives glass realism */
+  .glass-inner-highlight {
+    position: relative;
+  }
+  .glass-inner-highlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 0 hsl(var(--glass-highlight));
+    pointer-events: none;
+  }
+
+  /* Camera inner glow ring */
+  .camera-inner-glow {
+    position: relative;
+    isolation: isolate;
+  }
+  .camera-inner-glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 0 1px hsl(0 0% 100% / 0.08),
+      inset 0 0 80px -20px hsl(339 100% 65% / 0.18),
+      inset 0 0 140px -60px hsl(252 100% 68% / 0.18);
+    pointer-events: none;
+  }
+
+  /* Soft pressable */
+  .press {
+    transition: transform 200ms var(--ease-out-soft),
+                box-shadow 240ms var(--ease-out-soft),
+                background-color 240ms var(--ease-out-soft),
+                color 240ms var(--ease-out-soft);
+  }
+  .press:hover { transform: scale(1.03); }
+  .press:active { transform: scale(0.98); }
+
+  .text-gradient-pv {
+    background: var(--gradient-pink-violet);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  .glow-pink { box-shadow: var(--glow-pink); }
+  .glow-pink-soft { box-shadow: var(--glow-pink-soft); }
+  .glow-violet { box-shadow: var(--glow-violet); }
+
+  /* Pulse for record button */
+  @keyframes pulse-pink {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(339 100% 65% / 0.55),
+                  0 0 22px -4px hsl(339 100% 65% / 0.6);
+    }
+    50% {
+      box-shadow: 0 0 0 10px hsl(339 100% 65% / 0),
+                  0 0 28px -2px hsl(339 100% 65% / 0.7);
+    }
+  }
+  .animate-pulse-pink { animation: pulse-pink 1.8s var(--ease-out-soft) infinite; }
+
+  /* Fingertip dot pulse (white-pink) */
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.15); }
+  }
+  .animate-dot-pulse { animation: dot-pulse 1.6s var(--ease-out-soft) infinite; }
+
+  /* Letter entry */
+  @keyframes letter-up {
+    0% { opacity: 0; transform: translateY(6px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .animate-letter-up { animation: letter-up 280ms var(--ease-out-soft) both; }
+
+  /* Trail dot fade */
+  @keyframes trail-fade {
+    0% { opacity: 0; transform: scale(0.5); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.3); }
+  }
+  .animate-trail-fade { animation: trail-fade 1.6s var(--ease-out-soft) infinite; }
+
+  /* Audio bars */
+  @keyframes wave {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
+  }
+  .animate-wave { animation: wave 1s var(--ease-out-soft) infinite; }
+
+  /* Soft float for floating ring */
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .animate-float-y { animation: float-y 6s var(--ease-out-soft) infinite; }
+
+  /* Generic fade in */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in { animation: fade-in 360ms var(--ease-out-soft) both; }
+}
