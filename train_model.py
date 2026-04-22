@@ -27,7 +27,7 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_val_scaled = scaler.transform(X_val)
 
 # try SVM
-model = SVC(kernel="rbf", C=1, gamma="scale")
+model = SVC(kernel="rbf", C=10, gamma="scale")
 model.fit(X_train_scaled, y_train_encoded)
 
 val_predictions = model.predict(X_val_scaled)
