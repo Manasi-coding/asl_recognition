@@ -38,7 +38,12 @@ def predict(data: ImageData):
 
         letter = predictor.process_frame(frame_rgb)
 
-        return {"prediction": letter}
+        return {
+            "prediction": letter,
+            "is_recording": predictor.recording,
+            "gesture_type": predictor.gesture_type,
+            "cooldown": predictor.cooldown,
+        }
 
     except Exception as e:
         return {"error": str(e)}

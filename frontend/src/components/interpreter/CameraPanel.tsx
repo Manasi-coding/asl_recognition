@@ -111,12 +111,132 @@ const HandVisual = () => {
   );
 };
 
+const PREDICT_URL = "http://localhost:8000/predict";
+const CAPTURE_INTERVAL_MS = 100; // 10 FPS — matches backend movement detection threshold
+
 export const CameraPanel = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const isProcessing = useRef(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+
+  const [prediction, setPrediction] = useState<string>("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [gestureType, setGestureType] = useState<string | null>(null);
+
+  // ── Capture a frame and send to /predict ──────────────────────────
+  const captureAndPredict = async () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    // Only capture when the video has enough data
+    if (video.readyState !== 4) return;
+
+    // Prevent overlapping API calls
+    if (isProcessing.current) return;
+    isProcessing.current = true;
+
+    try {
+      // Resize canvas to match the actual video resolution every frame
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Generate base64 JPEG at max quality — compression artifacts distort landmarks
+      const base64 = canvas.toDataURL("image/jpeg", 1.0);
+
+      const res = await fetch(PREDICT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      const json = await res.json();
+
+      if (json.error) {
+        console.warn("Predict error:", json.error);
+        return;
+      }
+
+      // Update prediction + dynamic gesture state
+      if (json.prediction !== undefined) {
+        setPrediction(json.prediction);
+      }
+      setIsRecording(!!json.is_recording);
+      setGestureType(json.gesture_type ?? null);
+    } catch {
+      // Silently skip failed frames — the next interval will retry
+    } finally {
+      isProcessing.current = false;
+    }
+  };
+
+  // ── Camera init + prediction loop ─────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    const initCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1920, height: 1080, facingMode: "user" },
+          audio: false,
+        });
+
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+
+        streamRef.current = stream;
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+
+        // Start the prediction loop once the stream is assigned
+        intervalRef.current = setInterval(captureAndPredict, CAPTURE_INTERVAL_MS);
+      } catch (err) {
+        console.error("Camera access failed:", err);
+      }
+    };
+
+    initCamera();
+
+    return () => {
+      cancelled = true;
+      clearInterval(intervalRef.current);
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
+  }, []);
+
   return (
     <div
       className="camera-inner-glow relative aspect-video w-full overflow-hidden rounded-3xl bg-black"
       style={{ borderRadius: 24 }}
     >
+      {/* Hidden canvas for frame capture */}
+      <canvas ref={canvasRef} className="hidden" />
+
+      {/* Live camera feed — full color, mirrored */}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        onLoadedMetadata={(e) => {
+          (e.target as HTMLVideoElement).play();
+        }}
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ transform: "scaleX(-1)" }}
+      />
+
       {/* Subtle dark gradient inside */}
       <div
         aria-hidden
@@ -124,6 +244,7 @@ export const CameraPanel = () => {
         style={{
           background:
             "radial-gradient(ellipse at center, hsl(0 0% 6%) 0%, hsl(0 0% 2%) 70%, hsl(0 0% 0%) 100%)",
+          opacity: 0.3,
         }}
       />
 
@@ -155,6 +276,29 @@ export const CameraPanel = () => {
         1080p · 60fps
       </div>
 
+      {/* Dynamic gesture recording indicator */}
+      {isRecording && gestureType && (
+        <div className="absolute left-1/2 top-14 -translate-x-1/2 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 backdrop-blur-sm">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500/70" />
+            <span className="inline-flex h-2 w-2 rounded-full bg-red-500" />
+          </span>
+          <span className="font-mono text-xs font-medium tracking-wider text-white">
+            Recording {gestureType}…
+          </span>
+        </div>
+      )}
+
+      {/* Prediction HUD — bottom center */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-xl border border-white/10 bg-black/60 px-4 py-2 backdrop-blur-md">
+        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Sign
+        </span>
+        <span className="text-2xl font-bold text-white">
+          {prediction || "—"}
+        </span>
+      </div>
+
       {/* Corner brackets */}
       {[
         "left-4 top-4 border-l border-t",
@@ -170,3 +314,4 @@ export const CameraPanel = () => {
     </div>
   );
 };
+
