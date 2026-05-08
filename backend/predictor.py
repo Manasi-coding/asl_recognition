@@ -36,8 +36,16 @@ class ASLPredictor:
         self.cooldown = 0
         self.display_letter = ""
 
+        # Tunable thresholds (read by /api/config)
+        self.movement_threshold = 0.02
+        self.still_threshold = 0.01
+        self.still_frames_threshold = 5
+        self.cooldown_frames = 5
+        self.min_sequence_length = 20
+        self.min_gesture_duration = 0.8
+
         # Smoothing buffer
-        self.pred_buffer = deque(maxlen=5)
+        self.pred_buffer = deque(maxlen=3)
 
     def process_frame(self, frame):
         results = self.hands.process(frame)
@@ -58,7 +66,7 @@ class ASLPredictor:
             self.prev_idx, self.prev_pky = idx, pky
 
             # Start dynamic gesture
-            if movement > 0.02 and not self.recording:
+            if movement > self.movement_threshold and not self.recording:
                 self.recording = True
                 self.still_frames = 0
                 self.gesture_start = time.time()
@@ -71,14 +79,15 @@ class ASLPredictor:
 
             if self.recording:
                 self.sequence.append({"index": idx, "pinky": pky})
-                self.still_frames = self.still_frames + 1 if movement < 0.01 else 0
+                self.still_frames = self.still_frames + 1 if movement < self.still_threshold else 0
 
-                if self.still_frames > 5 and time.time() - self.gesture_start > 0.8:
+                if self.still_frames > self.still_frames_threshold and time.time() - self.gesture_start > self.min_gesture_duration:
                     self.recording = False
-                    self.cooldown = 5
+                    self.cooldown = self.cooldown_frames
                     self.still_frames = 0
+                    self.pred_buffer.clear()
 
-                    if len(self.sequence) > 20:
+                    if len(self.sequence) > self.min_sequence_length:
                         result = classify_sequence(self.sequence, self.gesture_type)
                         if result:
                             self.display_letter = result
@@ -91,15 +100,22 @@ class ASLPredictor:
             else:
                 features = extract_features_from_landmarks(hand.landmark).reshape(1, -1)
                 pred = self.model.predict(features)[0]
+                label = self.classes[pred]
 
-                self.pred_buffer.append(self.classes[pred])
-                self.display_letter = max(set(self.pred_buffer), key=self.pred_buffer.count)
+                self.pred_buffer.append(label)
+
+                # Fast-confirm: if last 2 entries agree with new prediction, skip majority vote
+                if len(self.pred_buffer) >= 2 and self.pred_buffer[-2] == label:
+                    self.display_letter = label
+                else:
+                    self.display_letter = max(set(self.pred_buffer), key=self.pred_buffer.count)
 
         else:
             self.sequence = []
             self.recording = False
             self.prev_idx = None
             self.prev_pky = None
+            self.pred_buffer.clear()
             self.display_letter = ""
 
         return self.display_letter

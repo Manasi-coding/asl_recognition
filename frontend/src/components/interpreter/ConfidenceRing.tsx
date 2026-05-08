@@ -1,72 +1,82 @@
-interface ConfidenceRingProps {
-  value: number; // 0-100
+// ── ConnectionStatus ──────────────────────────────────────────────────────────
+// Replaces the fake ConfidenceRing with a real backend connection indicator.
+// Shows a subtle floating badge driven by actual API reachability.
+
+import { cn } from "@/lib/utils";
+import type { ConnectionStatus as ConnectionStatusType } from "@/hooks/usePredictionLoop";
+
+interface ConnectionStatusProps {
+  status: ConnectionStatusType;
 }
 
-export const ConfidenceRing = ({ value }: ConfidenceRingProps) => {
-  const size = 120;
-  const stroke = 7;
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const offset = c - (Math.max(0, Math.min(100, value)) / 100) * c;
+const STATUS_CONFIG: Record<
+  ConnectionStatusType,
+  { label: string; dotClass: string; textClass: string; pulse: boolean }
+> = {
+  connected: {
+    label: "Connected",
+    dotClass: "bg-emerald-400",
+    textClass: "text-emerald-300",
+    pulse: false,
+  },
+  reconnecting: {
+    label: "Reconnecting…",
+    dotClass: "bg-amber-400",
+    textClass: "text-amber-300",
+    pulse: true,
+  },
+  offline: {
+    label: "Backend offline",
+    dotClass: "bg-red-500",
+    textClass: "text-red-400",
+    pulse: false,
+  },
+};
+
+export const ConnectionStatus = ({ status }: ConnectionStatusProps) => {
+  const cfg = STATUS_CONFIG[status];
 
   return (
-    <div className="relative animate-float-y" style={{ width: size, height: size }}>
-      {/* soft outer glow */}
-      <div
-        aria-hidden
-        className="absolute inset-0 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, hsl(339 100% 65% / 0.18), hsl(252 100% 68% / 0.10) 50%, transparent 75%)",
-          filter: "blur(8px)",
-        }}
-      />
-
-      <svg width={size} height={size} className="-rotate-90">
-        <defs>
-          <linearGradient id="ring-pv" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(252 100% 68%)" />
-            <stop offset="100%" stopColor="hsl(339 100% 65%)" />
-          </linearGradient>
-        </defs>
-
-        {/* Track */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="hsl(0 0% 100% / 0.06)"
-          strokeWidth={stroke}
+    <div
+      className={cn(
+        "animate-float-y flex flex-col items-center gap-3 rounded-2xl border border-white/[0.07] bg-black/50 px-4 py-4 backdrop-blur-md",
+        "shadow-[inset_0_1px_0_hsl(0_0%_100%/0.07)]"
+      )}
+    >
+      {/* Dot */}
+      <span className="relative flex h-3 w-3">
+        {cfg.pulse && (
+          <span
+            className={cn(
+              "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
+              cfg.dotClass
+            )}
+          />
+        )}
+        <span
+          className={cn(
+            "relative inline-flex h-3 w-3 rounded-full",
+            cfg.dotClass
+          )}
         />
-        {/* Progress */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="url(#ring-pv)"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-          style={{
-            transition: "stroke-dashoffset 600ms cubic-bezier(0.22,1,0.36,1)",
-            filter: "drop-shadow(0 0 6px hsl(339 100% 65% / 0.55))",
-          }}
-        />
-      </svg>
+      </span>
 
-      {/* Center text */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[28px] font-light leading-none tracking-tight text-foreground">
-          {Math.round(value)}
-          <span className="text-[16px] text-muted-foreground">%</span>
-        </span>
-        <span className="mt-1 text-[10px] lowercase tracking-[0.18em] text-muted-foreground">
-          confidence
-        </span>
-      </div>
+      {/* Status label */}
+      <span
+        className={cn(
+          "font-mono text-[9.5px] uppercase tracking-[0.22em]",
+          cfg.textClass
+        )}
+      >
+        {cfg.label}
+      </span>
+
+      <div className="h-px w-full bg-white/[0.06]" />
+
+      {/* API tag */}
+      <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground/50">
+        FastAPI
+      </span>
     </div>
   );
 };

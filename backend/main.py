@@ -47,3 +47,25 @@ def predict(data: ImageData):
 
     except Exception as e:
         return {"error": str(e)}
+
+
+@app.get("/api/classes")
+def get_classes():
+    """Return the model's class labels as a JSON list."""
+    return {"classes": predictor.classes.tolist()}
+
+
+@app.get("/api/config")
+def get_config():
+    """Return operational thresholds so the frontend can adapt dynamically."""
+    return {
+        "capture_interval_ms": 100,
+        "movement_threshold": predictor.movement_threshold,
+        "still_frames_threshold": predictor.still_frames_threshold,
+        "cooldown_frames": predictor.cooldown_frames,
+        "min_sequence_length": predictor.min_sequence_length,
+        "labels": {
+            "no_hand": "",
+            "scanning": "\u2014",
+        },
+    }
