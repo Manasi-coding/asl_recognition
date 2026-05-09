@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface DictionaryHeaderProps {
   query: string;
@@ -12,7 +12,7 @@ export const DictionaryHeader = ({ query, onQueryChange }: DictionaryHeaderProps
         <p className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-muted-foreground">
           Dictionary
         </p>
-        <h1 className="mt-1 text-[22px] font-medium tracking-tight text-foreground">
+        <h1 className="mt-1 text-[20px] font-medium tracking-tight text-foreground">
           Browse and learn all sign language letters
         </h1>
       </div>
@@ -29,11 +29,7 @@ export const DictionaryHeader = ({ query, onQueryChange }: DictionaryHeaderProps
           />
         </div>
 
-        {/* Filter */}
-        <button className="press glass glass-inner-highlight flex h-10 items-center gap-2 rounded-full px-4 text-[12.5px] text-foreground/90 hover:glow-pink-soft">
-          <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Filter
-        </button>
+
       </div>
     </header>
   );

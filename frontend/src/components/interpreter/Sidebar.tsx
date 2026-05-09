@@ -1,4 +1,4 @@
-import { Hand, BookText, History, ChevronRight } from "lucide-react";
+import { Hand, BookText, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GestureCards } from "./GestureCards";
 
@@ -21,7 +21,7 @@ export const Sidebar = ({ active, onChange }: SidebarProps) => {
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-2">
         <div className="relative grid h-9 w-9 place-items-center rounded-xl"
-             style={{ background: "var(--gradient-pink-violet)" }}>
+          style={{ background: "var(--gradient-pink-violet)" }}>
           <span className="text-base font-semibold text-primary-foreground">S</span>
           <span aria-hidden className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/15" />
         </div>
@@ -66,13 +66,6 @@ export const Sidebar = ({ active, onChange }: SidebarProps) => {
       {/* Dynamic Gestures */}
       <GestureCards />
 
-      {/* Footer */}
-      <div className="mt-auto space-y-3">
-        <button className="press glass glass-inner-highlight flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[12.5px] font-medium text-foreground/90 hover:glow-pink-soft">
-          View all gestures
-          <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
-      </div>
     </aside>
   );
 };
