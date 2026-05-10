@@ -304,7 +304,12 @@ Potential future additions:
 
 Add screenshots of:
 
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-2.png)
-![alt text](image-3.png)
+## Screenshots
+
+![Interpreter](screenshots/image.png)
+
+![Dictionary](screenshots/image-1.png)
+
+![Live Detection](screenshots/image-2.png)
+
+![Translator](screenshots/image-3.png)
