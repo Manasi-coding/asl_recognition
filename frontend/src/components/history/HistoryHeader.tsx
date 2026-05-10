@@ -21,7 +21,7 @@ export const HistoryHeader = ({ query, onQueryChange, stats }: HistoryHeaderProp
     // Title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.text("Signify History Report", 105, 20, { align: "center" });
+    doc.text("SignNet History Report", 105, 20, { align: "center" });
     
     // Summary Section
     doc.setFontSize(12);
@@ -53,7 +53,7 @@ export const HistoryHeader = ({ query, onQueryChange, stats }: HistoryHeaderProp
       margin: { left: 20, right: 20 },
     });
     
-    doc.save("signify-history-report.pdf");
+    doc.save("signnet-history-report.pdf");
   };
 
   return (

@@ -25,7 +25,7 @@ export const Sidebar = ({ active, onChange }: SidebarProps) => {
           <span className="text-base font-semibold text-primary-foreground">S</span>
           <span aria-hidden className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/15" />
         </div>
-        <p className="text-[16px] font-semibold tracking-tight text-foreground">Signify</p>
+        <p className="text-[16px] font-semibold tracking-tight text-foreground">SignNet</p>
       </div>
 
       {/* Nav */}

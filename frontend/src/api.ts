@@ -1,4 +1,4 @@
-// ── Signify — typed API client ───────────────────────────────────────────────
+// ── SignNet — typed API client ───────────────────────────────────────────────
 // All communication with http://127.0.0.1:8000 goes through this module.
 
 export const API_URL =
